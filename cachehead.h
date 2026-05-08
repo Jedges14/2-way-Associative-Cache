@@ -7,10 +7,12 @@
  */
 #ifndef MYLINE_H
 #define MYLINE_H
-
+#include <vector>
 #include <iostream>
 #include <string>
-
+#include <array>
+#include <cstdint>
+using namespace std;
 /**
  * Cache line for the cache 
  * @param valid Determines if line is empty or filled with data
@@ -22,7 +24,7 @@ struct line{
     bool valid = 0;
     unsigned int tag;
     bool dirty = 0;
-    uint8_t data[16] = {0};
+    array<uint8_t,16> data = {};
 };
 
 /**
@@ -36,17 +38,21 @@ struct cacheSet {
      * checks if incoming tag is present in either of the lines
      * @param inTag incoming tag from the cpu decoded in the address put on bus
      */
-    void tagMatch(unsigned int inTag){};
-    int8_t foundline=0;
+    int tagMatch(unsigned int inTag){};
     bool LRU = 0; // LRU=1 line1 is least recent and line0 is most recent and vice versa
     /**
      * Verifies for hits or misses and either fetch from memory to overwrite valid line and write to ram if modified or not
      * @param newTag tag of address line fetched from memory
      * @param newdata block fetched from memory
      */
-    void evict(unsigned int newTag, uint8_t newdata[16]){};
+    void evict(unsigned int newTag, array<uint8_t,16> newdata){};
 };
 
+
+struct Cache{
+    vector<cacheSet, int> setArray;
+    int access(uint16_t address){};
+};
 #endif
 
 
