@@ -11,8 +11,9 @@
 #include <iostream>
 #include <string>
 #include <array>
-#include <cstdint>
+#include <assert.h>
 using namespace std;
+
 /**
  * Cache line for the cache 
  * @param valid Determines if line is empty or filled with data
@@ -39,19 +40,31 @@ struct cacheSet {
      * @param inTag incoming tag from the cpu decoded in the address put on bus
      */
     int tagMatch(unsigned int inTag){};
+    uint16_t addressCompile( unsigned int index, line& l){};
     bool LRU = 0; // LRU=1 line1 is least recent and line0 is most recent and vice versa
     /**
      * Verifies for hits or misses and either fetch from memory to overwrite valid line and write to ram if modified or not
      * @param newTag tag of address line fetched from memory
      * @param newdata block fetched from memory
      */
-    void evict(unsigned int newTag, array<uint8_t,16> newdata){};
+    void evict(uint8_t index){};
+   
+    void insert(unsigned int newTag, array<uint8_t,16> newdata){};
+    RAM& ram;
 };
 
 
 struct Cache{
     vector<cacheSet, int> setArray;
     int access(uint16_t address){};
+    RAM& ram;
+};
+
+
+struct RAM{
+    uint8_t storage[65536]; //2^16 memory address locations
+    array<uint8_t, 16> fetchFromRAM(uint16_t address){};
+    void writeback(uint16_t addr, array<uint8_t,16> data){};
 };
 #endif
 
