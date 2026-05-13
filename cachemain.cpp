@@ -8,7 +8,7 @@ int cacheSet :: tagMatch(unsigned int inTag) {
 }
 
 uint16_t cacheSet :: addressCompile( unsigned int index, line& l){
-    uint16_t tagP = (l.tag) << 9;
+    uint16_t tagP = ((uint16_t)l.tag) << 9;
     uint16_t indexP =  index<< 4;
 
     return tagP | indexP; //this is already block aligned
@@ -51,30 +51,27 @@ void cacheSet :: evict(uint8_t index){
 
 
 int Cache :: access(uint16_t address){
-    uint8_t tag = address >> 9 ; //top 7 bits
-    uint8_t index = (address>>4) & 0x01F; //5 bits between tag and offset
-    uint8_t offset = address & 0x0F; //offset of 4bits
+    uint8_t tag, index, offset = addsplitter(address);
 
     cacheSet& foundSet = setArray[index]; //since it will be valid and index in 0-31
 
     int result = foundSet.tagMatch(tag); //check for tag in set
-    line loc;
    
 
     //currently assuming cpu is word addressed, will modular
     if (result == 0){ //found at line0
-        loc = foundSet.line0;
+       line& loc = foundSet.line0;
         assert(offset <= 12);
-        return (loc.data[offset] << 24) |
+        return ((uint32_t)loc.data[offset] << 24) |
                 ((uint32_t)loc.data[offset+1] << 16)|
                 ((uint32_t)loc.data[offset+2] << 8) |
                 ((uint32_t)loc.data[offset+3]);
     }
 
     else  if (result == 1){ //found at line0
-        loc = foundSet.line1;
+        line& loc = foundSet.line1;
         assert(offset <= 12);
-        return (loc.data[offset] << 24) |
+        return ((uint32_t)loc.data[offset] << 24) |
                 ((uint32_t)loc.data[offset+1] << 16)|
                 ((uint32_t)loc.data[offset+2] << 8) |
                 ((uint32_t)loc.data[offset+3]);
@@ -84,7 +81,13 @@ int Cache :: access(uint16_t address){
         array<uint8_t, 16> newData = ram.fetchFromRAM(address);
         foundSet.evict(index);
         foundSet.insert(tag, newData);
+        return access(address); // retry again after miss, since this time will be a hit
     } 
+}
+
+void Cache :: write(uint16_t address, uint32_t value){
+    uint8_t tag, index, offset = addsplitter(address);
+
 }
 
 array<uint8_t, 16> RAM :: fetchFromRAM(uint16_t address){

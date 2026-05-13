@@ -5,6 +5,7 @@
  * @author Jedges Gyasi
  * @date 5/7/2026
  */
+
 #ifndef MYLINE_H
 #define MYLINE_H
 #include <vector>
@@ -23,10 +24,23 @@ using namespace std;
  */
 struct line{
     bool valid = 0;
-    unsigned int tag;
+    unsigned int tag = 0;
     bool dirty = 0;
     array<uint8_t,16> data = {};
 };
+
+
+/**
+ * RAM data strucute implemented as 65536bytes (* 8 bits) since there address is 16bits so stroage is (2^16)
+ * 
+ * 
+ */
+struct RAM{
+    uint8_t storage[65536] = {}; //2^16 memory address locations
+    array<uint8_t, 16> fetchFromRAM(uint16_t address);
+    void writeback(uint16_t addr, array<uint8_t,16> data);
+};
+
 
 /**
  * 2 way associative set containing two lines
@@ -35,13 +49,16 @@ struct line{
 struct cacheSet {
     line line0; //first line of cache set
     line line1; // second line of cache set
+    RAM& ram;
+    bool LRU = 0; // LRU=1 line1 is least recent and line0 is most recent and vice versa
+
+    cacheSet(RAM& r) : ram(r) {}  //cacheset constructor
     /**
      * checks if incoming tag is present in either of the lines
      * @param inTag incoming tag from the cpu decoded in the address put on bus
      */
     int tagMatch(unsigned int inTag){};
     uint16_t addressCompile( unsigned int index, line& l){};
-    bool LRU = 0; // LRU=1 line1 is least recent and line0 is most recent and vice versa
     /**
      * Verifies for hits or misses and either fetch from memory to overwrite valid line and write to ram if modified or not
      * @param newTag tag of address line fetched from memory
@@ -50,22 +67,45 @@ struct cacheSet {
     void evict(uint8_t index){};
    
     void insert(unsigned int newTag, array<uint8_t,16> newdata){};
-    RAM& ram;
+    
 };
 
-
+/**
+ * 
+ * CPU facinge stuct of the acutal cache. has access methods to search and find cache lines if present in cache
+ * or fetch from ram if there is a miss
+ * 
+ */
 struct Cache{
-    vector<cacheSet, int> setArray;
-    int access(uint16_t address){};
+    /**
+     * vector storage for caches
+     */
+    vector<cacheSet> setArray; 
     RAM& ram;
+
+    Cache(RAM& r) : ram(r) {
+        for (int i = 0; i < 32; i++) {
+            setArray.emplace_back(r);  // construct each cacheSet with RAM& bound
+        }
+    }
+    /**
+     * method called that performs search in the cacheset array 
+     */
+    int access(uint16_t address){}; //for load or reads
+    /**
+     * // method for save words or writes to ram value from cpu at a given address
+     */
+    void write(uint16_t address, uint32_t value){}; 
 };
 
 
-struct RAM{
-    uint8_t storage[65536]; //2^16 memory address locations
-    array<uint8_t, 16> fetchFromRAM(uint16_t address){};
-    void writeback(uint16_t addr, array<uint8_t,16> data){};
-};
+static uint8_t addsplitter(uint16_t address){
+    uint8_t tag = address >> 9 ; //top 7 bits
+    uint8_t index = (address>>4) & 0x01F; //5 bits between tag and offset
+    uint8_t offset = address & 0x0F; //offset of 4bits)
+
+    return tag, index, offset;
+}
 #endif
 
 
