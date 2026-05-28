@@ -38,7 +38,7 @@ struct line{
 struct RAM{
     uint8_t storage[65536] = {}; //2^16 memory address locations
     array<uint8_t, 16> fetchFromRAM(uint16_t address);
-    void writeback(uint16_t addr, array<uint8_t,16> data);
+    void writeFromRAM(uint16_t addr, array<uint8_t,16> data);
 };
 
 
@@ -66,8 +66,7 @@ struct cacheSet {
      */
     void evict(uint8_t index){};
    
-    void insert(unsigned int newTag, array<uint8_t,16> newdata){};
-    
+    void insert(unsigned int newTag, array<uint8_t,16> newdata){};    
 };
 
 /**
@@ -88,23 +87,16 @@ struct Cache{
             setArray.emplace_back(r);  // construct each cacheSet with RAM& bound
         }
     }
-    /**
-     * method called that performs search in the cacheset array 
-     */
-    int access(uint16_t address){}; //for load or reads
-    /**
-     * // method for save words or writes to ram value from cpu at a given address
-     */
-    void write(uint16_t address, uint32_t value){}; 
+    
+    int access(uint16_t address){}; 
+
+    void write(uint16_t address, uint16_t value){}; 
 };
 
-
-static uint8_t addsplitter(uint16_t address){
-    uint8_t tag = address >> 9 ; //top 7 bits
-    uint8_t index = (address>>4) & 0x01F; //5 bits between tag and offset
-    uint8_t offset = address & 0x0F; //offset of 4bits)
-
-    return tag, index, offset;
+static void  addsplitter(uint16_t address, uint8_t& tag, uint8_t& index, uint8_t& offset){
+    tag = address >> 9 ; //top 7 bits
+    index = (address>>4) & 0x01F; //5 bits between tag and offset
+    offset = address & 0x0F; //offset of 4bits)
 }
 #endif
 
