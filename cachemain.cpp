@@ -79,9 +79,9 @@ uint16_t Cache :: access(uint16_t address){
         array<uint8_t, 16> newData = ram.fetchFromRAM(address);
         foundSet.evict(index);
         foundSet.insert(tag, newData);
-        return access(address); // retry again after miss, since this time will be a hit
+        
     } 
-    return;
+    return access(address); // retry again after miss, since this time will be a hit
 }
 
 /**

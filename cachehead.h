@@ -13,6 +13,7 @@
 #include <string>
 #include <array>
 #include <assert.h>
+#include <cstdint>
 using namespace std;
 
 /**
@@ -57,16 +58,16 @@ struct cacheSet {
      * checks if incoming tag is present in either of the lines
      * @param inTag incoming tag from the cpu decoded in the address put on bus
      */
-    int tagMatch(unsigned int inTag){};
-    uint16_t addressCompile( unsigned int index, line& l){};
+    int tagMatch(unsigned int inTag);
+    uint16_t addressCompile( unsigned int index, line& l);
     /**
      * Verifies for hits or misses and either fetch from memory to overwrite valid line and write to ram if modified or not
      * @param newTag tag of address line fetched from memory
      * @param newdata block fetched from memory
      */
-    void evict(uint8_t index){};
+    void evict(uint8_t index);
    
-    void insert(unsigned int newTag, array<uint8_t,16> newdata){};    
+    void insert(unsigned int newTag, array<uint8_t,16> newdata);    
 };
 
 /**
@@ -88,9 +89,9 @@ struct Cache{
         }
     }
     
-    uint16_t access(uint16_t address){}; 
+    uint16_t access(uint16_t address); 
 
-    void write(uint16_t address, uint16_t value){}; 
+    void write(uint16_t address, uint16_t value); 
 };
 
 static void  addsplitter(uint16_t address, uint8_t& tag, uint8_t& index, uint8_t& offset){

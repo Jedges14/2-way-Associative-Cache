@@ -10,5 +10,7 @@ Cache Functionalities:
  Write backs to RAM
  Fetch data from RAM
 
+![Cache Simulation Test Data](cacheDetails.png)
+
  
 
