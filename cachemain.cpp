@@ -53,7 +53,7 @@ void cacheSet :: evict(uint8_t index){
  * for load or reads
  * 
 */
-int Cache :: access(uint16_t address){
+uint16_t Cache :: access(uint16_t address){
     uint8_t tag, index, offset;
     addsplitter(address, tag, index, offset);
     cacheSet& foundSet = setArray[index]; //since it will be valid and index in 0-31
@@ -63,7 +63,7 @@ int Cache :: access(uint16_t address){
     //currently assuming cpu is halfword addressed, will modular
     if (result == 0){ //found at line0
        line& loc = foundSet.line0;
-        // assert(offset <= 14);  prevent memory out of bounds
+        assert(offset <= 14);  //prevent memory out of bounds
         return ((uint16_t)loc.data[offset] << 8) |
                 ((uint16_t)loc.data[offset+1]);
     }

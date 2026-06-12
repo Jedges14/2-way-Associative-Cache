@@ -88,7 +88,7 @@ struct Cache{
         }
     }
     
-    int access(uint16_t address){}; 
+    uint16_t access(uint16_t address){}; 
 
     void write(uint16_t address, uint16_t value){}; 
 };
